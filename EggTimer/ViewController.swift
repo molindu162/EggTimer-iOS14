@@ -7,13 +7,16 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController {
+    
+    var player: AVAudioPlayer!
     
     @IBOutlet weak var countdownLabel: UILabel!
     @IBOutlet weak var ProgressBar: UIProgressView!
     
-    let hardness : [String : Int] = ["Soft": 300, "Medium": 600, "Hard": 720]
+    let hardness : [String : Int] = ["Soft": 10, "Medium": 600, "Hard": 720]
     
     var timer: Timer?
     var totalTime = 60 // Total time in seconds
@@ -45,6 +48,13 @@ class ViewController: UIViewController {
         }
     }
     
+    func playSound(title: String) {
+        let url = Bundle.main.url(forResource: title, withExtension: "mp3")
+        player = try! AVAudioPlayer(contentsOf: url!)
+        player.play()
+                
+    }
+    
     
     func startTimer() {
             // Invalidate the previous timer, if any
@@ -54,18 +64,18 @@ class ViewController: UIViewController {
             timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
         }
         
-        @objc func updateTimer() {
-            if totalTime > 0 {
-                totalTime -= 1
-                ProgressBar.progress = Float(1.0 - Float(totalTime)/total)
-                let minutes = totalTime / 60
-                let seconds = totalTime % 60
-                countdownLabel.text = String(format: "%02d:%02d", minutes, seconds)
-            } else {
-                timer?.invalidate()
-                countdownLabel.text = "Finished!"
-            }
+    @objc func updateTimer() {
+        if totalTime > 0 {
+            totalTime -= 1
+            ProgressBar.progress = Float(1.0 - Float(totalTime)/total)
+            let minutes = totalTime / 60
+            let seconds = totalTime % 60
+            countdownLabel.text = String(format: "%02d:%02d", minutes, seconds)
+        } else {
+            timer?.invalidate()
+            countdownLabel.text = "Finished!"
+            playSound(title: "alarm_sound")
         }
-    
+    }
 
 }
